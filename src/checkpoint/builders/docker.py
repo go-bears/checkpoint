@@ -35,6 +35,11 @@ def check_docker_auth(username: str) -> bool:
     return any("docker.io" in key and username in value for key, value in creds.items())
 
 
+def raw_regex(s: str) -> str:
+    escaped = s.replace('"', r"\"")
+    return f'r"{escaped}"'
+
+
 class DockerBuilder:
     def __init__(self, config: CheckpointQuestion):
         self.config: CheckpointQuestion = config
@@ -78,6 +83,8 @@ class DockerBuilder:
             trim_blocks=True,
             lstrip_blocks=True,
         )
+
+        env.filters["raw_regex"] = raw_regex
 
         template = env.get_template("config.py.j2")
         config_content = template.render(

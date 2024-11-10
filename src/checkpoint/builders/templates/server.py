@@ -2,7 +2,6 @@ import argparse
 import json
 import logging
 import os
-import re
 import stat
 import subprocess
 import time
@@ -10,6 +9,7 @@ from asyncio import Future
 from pathlib import Path
 from typing import Any, Optional
 
+import regex
 from config import MISSIONS, PROGRAM_COMMAND, SETUP_COMMANDS  # type: ignore
 from terminado.management import UniqueTermManager
 from terminado.websocket import TermSocket
@@ -146,7 +146,8 @@ class MissionHandler(WebSocketHandler):
 
         is_completed = False
         if listener["type"] == "regex":
-            is_completed = bool(re.search(listener["match"], content))
+            compiled_regex = regex.compile(listener["match"], regex.DOTALL)
+            is_completed = bool(compiled_regex.search(content))
         elif listener["type"] == "exact":
             is_completed = content.strip() == listener["match"]
 
@@ -219,9 +220,9 @@ class TermSocketWithLogging(TermSocket):
                 if data[0] in ["stdout", "stderr"]:
                     text = data[1]
                     # Clean control characters
-                    clean_text = re.sub(r"\x1b\[[0-9;]*[mK]", "", text)
-                    clean_text = re.sub(r"\x1b\[\?[0-9]+[hl]", "", clean_text)
-                    clean_text = re.sub(r"\r\n?", "\n", clean_text)
+                    clean_text = regex.sub(r"\x1b\[[0-9;]*[mK]", "", text)
+                    clean_text = regex.sub(r"\x1b\[\?[0-9]+[hl]", "", clean_text)
+                    clean_text = regex.sub(r"\r\n?", "\n", clean_text)
                     clean_text = clean_text.replace("\b", "")
 
                     # If the output is not the last input, the current input, or the

@@ -1,18 +1,18 @@
 MISSIONS = [
     {% for flag in flags %}
     {
-        "title": "{{ flag.title }}",
-        "prompt": "{{ flag.prompt }}",
-        "description": """{{ flag.description }}""",
+        "title": {{ flag.title | tojson }},
+        "prompt": {{ flag.prompt | tojson }},
+        "description": {{ flag.description | tojson }},
         "listener": {
-            "type": "{{ flag.listener.type.value }}",
-            "target": "{{ flag.listener.target.value }}",
-            "match": """{{ flag.listener.match }}"""
+            "type": {{ flag.listener.type.value | tojson }},
+            "target": {{ flag.listener.target.value | tojson }},
+            "match": {{ flag.listener.match | raw_regex }}
         }
     },
     {% endfor %}
 ]
 
-PROGRAM_COMMAND = ["{{ program }}"] + {{ program_args }}
+PROGRAM_COMMAND = {{ ([program] + program_args) | tojson }}
 
-SETUP_COMMANDS = {{ setup_commands }}
+SETUP_COMMANDS = {{ setup_commands | tojson }}
