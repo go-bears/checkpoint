@@ -1,8 +1,20 @@
-# Checkpoint 🎯
+<p align="center">
+  <img alt="Checkpoint" src="docs/images/checkpoint-logo.png" width="300"/>
+</p>
+
+<h1 align="center">
+Checkpoint
+</h1>
+
+<h3 align="center">
+Interactive Mission-Based Terminal Tutorials Made Easy
+</h3>
 
 <p align="center">
-  <img src="docs/images/checkpoint-demo.png" alt="Checkpoint Demo" width="300"/>
+| <a href="examples/"><b>Examples</b></a> | <a href="https://prairielearn.readthedocs.io/"><b>PrairieLearn</b></a> |
 </p>
+
+---
 
 Checkpoint helps you create step-by-step, mission-based tutorials in PrairieLearn. Students learn through hands-on practice in a terminal environment, receiving instant feedback as they progress through each mission. Unlike traditional tutorials, Checkpoint actively monitors student progress and provides immediate validation when they successfully complete each step.
 
