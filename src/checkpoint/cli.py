@@ -4,9 +4,10 @@ from typing import Any
 
 import click
 import docker
+import regex
 import yaml
 
-from .builders.docker import DockerBuilder, check_docker_auth
+from .builders.docker import DockerBuilder, check_docker_auth, raw_regex
 from .builders.question import QuestionBuilder
 from .constants import (
     DEFAULT_CONFIG_PATH,
@@ -159,3 +160,69 @@ def deploy():
     question_builder.build(image_name)
 
     click.echo("✨ Deployment complete!")
+
+
+@cli.command()
+@click.argument("mission_number", type=int)
+def validate(mission_number: int):
+    """Interactive validation for specific mission regex pattern"""
+    if not DEFAULT_CONFIG_PATH.exists():
+        click.echo(f"❌ {DEFAULT_CONFIG_PATH} not found")
+        return
+
+    config = CheckpointQuestion.from_yaml(DEFAULT_CONFIG_PATH)
+
+    if mission_number < 1 or mission_number > len(config.flags):
+        click.echo("❌ Invalid mission number. Available missions:")
+        for i, flag in enumerate(config.flags, 1):
+            click.echo(f"{i}. {flag.title}")
+        return
+
+    flag = config.flags[mission_number - 1]
+    pattern_str = raw_regex(flag.listener.match)
+    pattern: str = eval(pattern_str)
+
+    try:
+        compiled_regex = regex.compile(pattern, regex.DOTALL)
+        click.echo(f"\nMission {mission_number}: {flag.title}")
+        click.echo(f"regex pattern: {compiled_regex.pattern}")
+    except regex.error as e:
+        click.echo(f"❌ Invalid regex pattern: {e}")
+        return
+
+    click.echo(
+        "\nEnter output to validate (double empty line to submit, Ctrl+C to exit):"
+    )
+    while True:
+        try:
+            lines: list[str] = []
+            empty_line_count = 0
+            while True:
+                line = input()
+                if not line:
+                    empty_line_count += 1
+                    if empty_line_count >= 2:
+                        break
+                else:
+                    empty_line_count = 0
+                lines.append(line)
+
+            if not lines:
+                continue
+
+            output = "\n".join(lines)
+            match = compiled_regex.search(output, partial=True)
+            if match:
+                if match.partial:
+                    click.echo("🔍 Partial match found.")
+                    click.echo(f"Matched up to: {match.group()!r}")
+                else:
+                    click.echo("✅ Match!")
+                    click.echo(f"Matched text: {match.group(0)!r}")
+            else:
+                click.echo("❌ No match")
+        except KeyboardInterrupt:
+            click.echo("\nExiting validation mode")
+            break
+        except regex.error as e:
+            click.echo(f"❌ Regex error: {e}")
