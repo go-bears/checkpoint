@@ -1,0 +1,22 @@
+FROM {{ base_image }}
+
+# Install system packages
+RUN apt-get update && apt-get upgrade -y && \
+    {{ package_commands | join(' && ') }}
+
+# Setup working directory
+WORKDIR {{ runtime_dir }}
+RUN chmod -R 700 {{ runtime_dir }}
+
+# Install Python packages
+COPY requirements.txt .
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+# Copy application files
+COPY . .
+
+# Create user
+RUN useradd -m {{ user }}
+
+# Set entrypoint
+ENTRYPOINT ["python3", "-u", "server.py", "--port", "{{ port }}", "--user", "{{ user }}", "--workdir", "{{ workspace_home }}"]

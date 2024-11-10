@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pl-checkpoint"
+version = "0.1.0"
+description = "Interactive terminal-based learning platform for PrairieLearn"
+authors = [{name = "Andy Lee", email = "andylizf@outlook.com"}]
+license = {text = "MIT"}
+requires-python = ">=3.9"
+dependencies = [
+    "pydantic>=2.0",
+    "docker",
+    "jinja2",
+    "pyyaml",
+    "tornado",
+    "terminado",
+]
+
+[project.scripts]
+checkpoint = "checkpoint.cli:cli"
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.6",
+    "pytest>=7.0",
+    "pytest-cov",
+    "mypy",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["checkpoint"]

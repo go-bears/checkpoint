@@ -1,0 +1,18 @@
+MISSIONS = [
+    {% for flag in flags %}
+    {
+        "title": "{{ flag.title }}",
+        "prompt": "{{ flag.prompt }}",
+        "description": """{{ flag.description }}""",
+        "listener": {
+            "type": "{{ flag.listener.type.value }}",
+            "target": "{{ flag.listener.target.value }}",
+            "match": """{{ flag.listener.match }}"""
+        }
+    },
+    {% endfor %}
+]
+
+PROGRAM_COMMAND = ["{{ program }}"] + {{ program_args }}
+
+SETUP_COMMANDS = {{ setup_commands }}

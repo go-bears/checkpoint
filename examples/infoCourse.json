@@ -1,0 +1,24 @@
+{
+    "uuid": "AFEAEB16-AC26-4C3B-8C82-6169C66442C4",
+    "name": "PL Active Environment Runtime",
+    "title": "PL Active Environment Runtime",
+    "options": {
+      "useNewQuestionRenderer": true
+    },
+    "assessmentSets": [],
+    "topics": [
+      {
+        "name": "Template",
+        "color": "orange2",
+        "description": "Templates to copy as the start for a new question."
+      }
+    ],
+    "tags": [
+      {
+        "name": "formative",
+        "color": "brown2",
+        "description": "HW and lab questions",
+        "assessment": true
+      }
+    ]
+  }
