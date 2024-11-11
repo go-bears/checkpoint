@@ -102,8 +102,14 @@ The terminal provides a real Linux environment where you can practice Git comman
 
 ## 🛠️ Create Your Own Tutorial
 
-Want to create your own tutorial? It's easy! Just:
+Want to create your own tutorial? We've got you covered! Check out our [Instructor's Guide](docs/instructor-guide.md) for a detailed walkthrough of creating engaging, mission-based tutorials. You'll learn:
 
+- How to transform traditional assignments into interactive missions
+- Tips for writing robust regex patterns
+- Best practices for mission design
+- Advanced validation techniques
+
+Ready to start? Just:
 1. Create a new `checkpoint.yaml` file
 2. Define your Docker environment
 3. Specify your learning missions
