@@ -60,6 +60,20 @@
             max-width: 80%;
             word-break: break-all;
         }
+
+        #terminal-container {
+            flex: 1 1 0%;
+            background-color: black;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .xterm-viewport {
+            padding-bottom: 20px;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 
@@ -90,7 +104,7 @@
         </div>
     </div>
 
-    <div id="terminal-container" class="flex-grow bg-black rounded-lg shadow-lg overflow-hidden"></div>
+    <div id="terminal-container" class="flex-1 min-h-0 bg-black rounded-lg shadow-lg overflow-hidden"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
@@ -118,7 +132,20 @@
         const fit = new FitAddon.FitAddon();
         term.loadAddon(fit);
         term.open(document.getElementById('terminal-container'));
-        fit.fit();
+
+        // Use ResizeObserver to listen for terminal container size changes
+        const terminalContainer = document.getElementById('terminal-container');
+        const resizeObserver = new ResizeObserver(() => {
+            fit.fit();
+            term.scrollToBottom();
+        });
+        resizeObserver.observe(terminalContainer);
+
+        // Ensure initial fit and scroll to bottom
+        window.addEventListener('load', () => {
+            fit.fit();
+            term.scrollToBottom();
+        });
 
         const socketPath = window.location.pathname.replace(/\/+$/, '') + '/terminals/main';
         const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -144,14 +171,22 @@
                 terminalSocket.send(JSON.stringify(['set_size', term.rows, term.cols]));
             });
 
-            window.addEventListener('resize', () => fit.fit());
+            window.addEventListener('resize', () => {
+                fit.fit();
+                term.scrollToBottom(); // Ensure scrolling to bottom after resizing
+                // Resend size to ensure server-side synchronization
+                terminalSocket.send(JSON.stringify(['set_size', term.rows, term.cols]));
+            });
+
             fit.fit();
+            term.scrollToBottom(); // 初始时滚动到底部
         };
 
         terminalSocket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data[0] === 'stdout' || data[0] === 'stderr') {
                 term.write(data[1]);
+                term.scrollToBottom(); // 接收到输出后自动滚动到底部
             }
         };
 
@@ -174,10 +209,8 @@
                         currentMission = message.currentMission;
                         updateMissionList();
                         if (currentMission >= missions.length) {
-                            // 所有任务完成
                             updateMissionDetails(null, currentMission);
                         } else {
-                            // 还有下一个任务
                             updateMissionDetails(missions[currentMission], currentMission);
                         }
                     }, 3000);
@@ -221,13 +254,11 @@
             const missionEmoji = document.getElementById('mission-emoji');
 
             if (index >= missions.length) {
-                // 所有任务完成
                 missionEmoji.textContent = '🏆';
                 missionNumber.textContent = 'All Missions Complete!';
                 missionName.textContent = 'Congratulations!';
                 missionDescription.textContent = 'You have completed all missions! You can now exit this workspace and click the "Save & Grade" button on the PrairieLearn question page to record your score.';
             } else {
-                // 正常显示当前任务
                 missionEmoji.textContent = index === missions.length - 1 ? '🏆' : '🚩';
                 missionNumber.textContent = `Mission ${index + 1}`;
                 missionName.textContent = mission.title;
