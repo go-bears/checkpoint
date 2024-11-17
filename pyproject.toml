@@ -32,6 +32,13 @@ dev = [
 [tool.setuptools]
 package-dir = {"" = "src"}
 
+[tool.setuptools.package-data]
+checkpoint = [
+    "builders/templates/*",
+    "builders/*.j2",
+    "builders/*.template",
+]
+
 [tool.ruff]
 line-length = 88
 target-version = "py39"
