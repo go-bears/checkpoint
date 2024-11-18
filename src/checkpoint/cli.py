@@ -119,6 +119,7 @@ def generate():
     """Generate question info.json only"""
     if not DEFAULT_CONFIG_PATH.exists():
         click.echo(f"❌ {DEFAULT_CONFIG_PATH} not found")
+        click.echo("Run 'checkpoint init' to create a new checkpoint")
         return
 
     config = CheckpointQuestion.from_yaml(DEFAULT_CONFIG_PATH)
@@ -127,6 +128,7 @@ def generate():
     click.echo("📝 Generating question files...")
     question_builder = QuestionBuilder(config)
     question_builder.build(image_name)
+
     click.echo("✨ Generated info.json and question.html")
 
 
