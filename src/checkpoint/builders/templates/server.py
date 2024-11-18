@@ -239,6 +239,9 @@ class TermSocketWithLogging(TermSocket):
 
         return super().on_message(message)
 
+    def check_origin(self, origin: str) -> bool:
+        return True
+
     def write_message(
         self, message: str | bytes | dict[str, Any], binary: bool = False
     ) -> Any:
