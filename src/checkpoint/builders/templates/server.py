@@ -1,12 +1,15 @@
 import argparse
 import json
 import logging
+import logging.handlers
 import os
 import stat
 import subprocess
+import sys
 import time
 from asyncio import Future
 from pathlib import Path
+from types import TracebackType
 from typing import Any, Optional
 
 import regex
@@ -22,6 +25,7 @@ class GradeManager:
     GRADE_DIR: Path
     GRADE_FILE: Path
     LOG_FILE: Path
+    SERVER_LOG_FILE: Path
 
     @classmethod
     def set_workdir(cls, workdir: str) -> None:
@@ -29,6 +33,7 @@ class GradeManager:
         cls.GRADE_DIR = Path(workdir) / ".checkpoint"
         cls.GRADE_FILE = cls.GRADE_DIR / "results.json"
         cls.LOG_FILE = cls.GRADE_DIR / "session.log"
+        cls.SERVER_LOG_FILE = cls.GRADE_DIR / "server.log"
 
     @classmethod
     def _create_grade_data(
@@ -52,12 +57,34 @@ class GradeManager:
     @classmethod
     def init(cls) -> None:
         """Initialize grade file, directory and logging"""
-        try:
-            # Create directory and set permissions
-            cls.GRADE_DIR.mkdir(exist_ok=True)
-            cls.GRADE_DIR.chmod(stat.S_IRWXU)  # 700
+        # Create directory and set permissions
+        cls.GRADE_DIR.mkdir(exist_ok=True)
+        cls.GRADE_DIR.chmod(stat.S_IRWXU)  # 700
 
-            # Setup logging
+        # Setup server logging
+        cls.server_logger = logging.getLogger("server")
+        cls.server_logger.setLevel(logging.INFO)
+        handler = logging.FileHandler(cls.SERVER_LOG_FILE)
+        handler.setFormatter(logging.Formatter(fmt="%(asctime)s - %(message)s"))
+        cls.server_logger.addHandler(handler)
+
+        def handle_exception(
+            exc_type: type[Exception],
+            exc_value: Exception,
+            exc_traceback: TracebackType,
+        ) -> None:
+            """Handle uncaught exceptions by logging them to server.log"""
+            if issubclass(exc_type, KeyboardInterrupt):
+                sys.__excepthook__(exc_type, exc_value, exc_traceback)
+                return
+            cls.server_logger.error(
+                "Uncaught exception:", exc_info=(exc_type, exc_value, exc_traceback)
+            )
+
+        sys.excepthook = handle_exception
+
+        try:
+            # Setup session logging
             logging.basicConfig(
                 filename=cls.LOG_FILE,
                 level=logging.INFO,
@@ -72,10 +99,12 @@ class GradeManager:
             # Set permissions for files
             cls.GRADE_FILE.chmod(stat.S_IRUSR | stat.S_IWUSR)  # 600
             cls.LOG_FILE.chmod(stat.S_IRUSR | stat.S_IWUSR)  # 600
+            cls.SERVER_LOG_FILE.chmod(stat.S_IRUSR | stat.S_IWUSR)  # 600
 
             logging.info("=== New Session Started ===")
+            cls.server_logger.info("=== Server Session Started ===")
         except Exception as e:
-            print(f"Error initializing grade file and logging: {e}")
+            cls.server_logger.error(f"Error initializing grade file and logging: {e}")
 
     @classmethod
     def update(cls, completed_missions: int) -> None:
@@ -84,7 +113,7 @@ class GradeManager:
             with open(cls.GRADE_FILE, "w") as f:
                 json.dump(cls._create_grade_data(completed_missions, len(MISSIONS)), f)
         except Exception as e:
-            print(f"Error updating grade file: {e}")
+            cls.server_logger.error(f"Error updating grade file: {e}")
 
 
 MISSIONS: list[dict[str, Any]]
@@ -295,9 +324,9 @@ def main():
     while not os.path.exists(args.workdir) and attempt < max_attempts:
         print(
             f"Waiting for workspace directory to be created... "
-            f"s(attempt {attempt + 1}/{max_attempts})"
+            f"(attempt {attempt + 1}/{max_attempts})"
         )
-        time.sleep(1)  # Wait for 1 second before next check
+        time.sleep(1)
         attempt += 1
 
     if not os.path.exists(args.workdir):

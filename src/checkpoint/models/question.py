@@ -122,7 +122,11 @@ PROGRAM_COMMAND = {[self.runtime.program] + self.runtime.program_args}
         }
 
     def _collect_graded_files(self) -> list[str]:
-        graded_files: set[str] = {".checkpoint/results.json"}
+        graded_files: set[str] = {
+            ".checkpoint/results.json",
+            ".checkpoint/server.log",
+            ".checkpoint/session.log",
+        }
         for flag in self.flags:
             for file in flag.files:
                 if file.graded:
