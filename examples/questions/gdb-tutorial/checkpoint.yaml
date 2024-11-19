@@ -106,7 +106,7 @@ flags:
     listener:
       target: output
       type: regex
-      match: "check_length.*pwd_checker\\.c:25.*25\\s+return meets_len_req;"
+      match: "(?m)(?:^\\s*23\\s+.*$\\n^\\s*24\\s+.*$\\n25\\s+return\\s+meets_len_req;\\s*$)(*SKIP)(*FAIL)|\\s*25\\s+return\\s+meets_len_req;\\s*$"
 
   - title: Check Return Value
     prompt: "Mission 10: Print return value"

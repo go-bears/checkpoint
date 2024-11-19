@@ -137,6 +137,16 @@ They can see the line without actually stepping to it! We need to ensure they're
     match: "check_length.*pwd_checker\\.c:25.*25\\s+return meets_len_req;"
 ```
 
+However, we discovered another edge case: when students use `next` commands to reach the return statement, they might not see the `check_length` function context in the output. After consulting with ChatGPT, we arrived at a more robust solution that specifically excludes the `list` command output while matching the actual execution point:
+
+```yaml
+match: "(?m)(?:^\\s*23\\s+.*$\\n^\\s*24\\s+.*$\\n25\\s+return\\s+meets_len_req;\\s*$)(*SKIP)(*FAIL)|\\s*25\\s+return\\s+meets_len_req;\\s*$"
+```
+
+This regex pattern does two clever things:
+1. It first identifies and excludes the case where we see three consecutive lines (23, 24, 25) which would appear in a `list` command
+2. Then it matches just line 25 with the return statement, which would appear when actually stepping to that line during execution
+
 ### 🔍 Pattern Matching Tips
 
 After these examples, we can extract some key principles:
