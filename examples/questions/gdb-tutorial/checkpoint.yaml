@@ -47,6 +47,7 @@ flags:
     prompt: "Mission 3: Step until check_password call"
     description: |
       Step until the program is on the check_password call. 
+      When you are not sure which line you are on, you can use the `list` and `info line` commands to show the context.
       Note that the line with an arrow next to it is the line we're currently on, 
       but has not been executed yet.
     listener:
