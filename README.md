@@ -122,7 +122,7 @@ Check out [`examples/questions`](examples/questions) for more inspiration!
 MIT
 
 ## Presented at SIGCSE 2025
-- [`Checkpoint__Responsive_CTFs_for_Terminal_Based_Assessment.pdf`](Checkpoint: A Tool for Supporting Terminal-Based Capture-the-Flag Assessments)
+- (Checkpoint: A Tool for Supporting Terminal-Based Capture-the-Flag Assessments)[Checkpoint__Responsive_CTFs_for_Terminal_Based_Assessment.pdf]
 
 ---
 <p align="center">
