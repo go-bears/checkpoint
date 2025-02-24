@@ -124,6 +124,8 @@ MIT
 ## Presented at SIGCSE 2025
 - [Checkpoint: A Tool for Supporting Terminal-Based Capture-the-Flag Assessments](Checkpoint__Responsive_CTFs_for_Terminal_Based_Assessment.pdf)
 - [Poster for Checkpoint](SIGCSE2025-Checkpoint-V2.pptx.pdf)
+- <img alt="Checkpoint" src="docs/images/sigcse2025-screenshot.png" width="100"/>
+
 
 ---
 <p align="center">
